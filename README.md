@@ -7,6 +7,11 @@ Initial network is a consortium blockchain network operated by trusted instituti
 The specification can be found here \
 https://sktston.github.io/ssw-did/did-method-spec.html
 
-## initial Service
-We are currently operating Self sovereign identity service under the name initial \
+## initial Mobile Service
+We are currently operating Self sovereign identity mobile service under the name initial \
 https://initial.id/html_en/index.html
+
+## initial Platform Service
+The initial platform service supports issuers or verifiers to easily issue and verify verificable credentials. See the link below for related information. \
+(Korean) https://initial-v2-platform.readthedocs.io/ko/master/ \
+(Korean) https://console.myinitial.io/
