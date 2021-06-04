@@ -1,10 +1,254 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset='utf-8'>
+    <title>SSW DID Method Specification</title>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c' class='remove'></script>
+    <script type="text/javascript" class="remove">
+        var respecConfig = {
+          specStatus: "ED",
+          editors: [
+              { name: "Ethan Sung", url: "https://github.com/baegjae",
+                company: "SK telecom", companyURL: "https://www.sktelecom.com/index_en.html"},
+              { name: "Thomas Kim", url: "https://github.com/airoasis",
+                company: "SK telecom", companyURL: "https://www.sktelecom.com/index_en.html"},
+              { name: "Jaehyun Ju", url: "https://github.com/khujin1",
+                company: "SK telecom", companyURL: "https://www.sktelecom.com/index_en.html"},
+              { name: "Dongjun Lee", url: "https://github.com/redongjun",
+                company: "SK telecom", companyURL: "https://www.sktelecom.com/index_en.html"},
+              { name: "Hyojin Jung", url: "https://initial.id/html_en/index.html",
+                company: "SK telecom", companyURL: "https://www.sktelecom.com/index_en.html"}
+          ],
+          edDraftURI: "https://github.com/sktston/ssw-did",
+          shortName: "SSW"
+        };
+    </script>
+    <style>
+        pre .highlight {
+          font-weight: bold;
+          color: Green;
+        }
+        pre .subject {
+          font-weight: bold;
+          color: RoyalBlue;
+        }
+        pre .property {
+          font-weight: bold;
+          color: DarkGoldenrod;
+        }
+        pre .comment {
+          font-weight: bold;
+          color: SteelBlue;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+        }
+        .color-text {
+          font-weight: bold;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+        }
+    </style>
 </head>
 <body>
-Initial Commit
+
+<section class="introductory">
+    <h2>About</h2>
+    <p>
+        The SSW (Self Sovereign Wallet) DID method specification conforms to the requirements specified in the DID specification
+        currently published by the W3C Credentials Community Group. For more information about DIDs and
+        DID method specifications, please see the
+        <a href="https://github.com/WebOfTrustInfo/rebooting-the-web-of-trust-fall2017/blob/master/topics-and-advance-readings/did-primer.md">
+        DID Primer</a> and <a href="https://w3c-ccg.github.io/did-spec/">DID Spec</a>.
+    </p>
+</section>
+
+<section id='abstract'>
+    <p>
+        Initial network is a consortium blockchain network operated by trusted institutions in South Korea. Initial
+        network operates based on SK telecom's ston ledger technology and aims to provide various blockchain services.
+        Self sovereign identity is a priority service, and we are currently operating the service under the name
+        <a href="https://initial.id/html_en/index.html">initial</a>. The SSW (Self Sovereign Wallet) DID method is a
+        method of storing DIDs and managing DID Documents in the Initial network.
+    </p>
+</section>
+
+<section id='sotd'></section>
+
+<section>
+    <h2>SSW DID Method </h2>
+    <p>
+        The namestring that shall identify this DID method is: <code>ssw</code>
+    </p>
+    <p>
+        A DID that uses this method MUST begin with the following prefix: <code>did:ssw</code>.
+        Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
+        is the NSI specified below.
+    </p>
+</section>
+
+<section>
+    <h2>Namespace Specific Identifier (NSI)</h2>
+    <p>
+        The SSW DID scheme is defined by the following <a href="ftp://ftp.rfc-editor.org/in-notes/std/std68.txt">ABNF</a>:
+    </p>
+    <code>
+        ssw-did = "did:ssw:" *(":" network) ":" idstring <br>
+        idstring = 21*22(base58char)<br>
+        network = "testnet" / "devnet"<br>
+        base58char = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C"<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;/ "D" / "E" / "F" / "G" / "H" / "J" / "K" / "L" / "M" / "N" / "P" / "Q"<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;/ "R" / "S" / "T" / "U" / "V" / "W" / "X" / "Y" / "Z" / "a" / "b" / "c"<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;/ "d" / "e" / "f" / "g" / "h" / "i" / "j" / "k" / "m" / "n" / "o" / "p"<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;/ "q" / "r" / "s" / "t" / "u" / "v" / "w" / "x" / "y" / "z"<br>
+    </code>
+    <p>
+        All SSW DIDs are base58 encoded using the Bitcoin/IPFS alphabets of a 16-byte uuid.
+        The encoding uses most alphas and digits, omitting 0OIl to avoid readability problems. This
+        gives an NSI length of either 21 or 22 characters, and it means that DIDs are case-sensitive and may not
+        be case-normalized, even though the prefix is always lower-case.
+    </p>
+    <p>
+        Optional a network may be specified to indicate which initial network contains the DID Document.
+    </p>
+    <h3>Identifier Generation Method</h3>
+    <p>
+        The 16-byte uuid underlying a SSW DID can be generated in various ways--using standard uuid methods, for example, or
+        by selecting the first 16 bytes of a 256 bit Ed25519 verification key (the public
+        portion of the key pair).
+    </p>
+    <p>
+        A convenient regex to match <code>ssw</code> DIDs is:
+    </p>
+    <code>^[1-9A-HJ-NP-Za-km-z]{21,22}$</code>
+    <p>
+        A convenient regex to match the entire did string is:
+    </p>
+    <code>^did:ssw(?:(testnet|devnet)):[1-9A-HJ-NP-Za-km-z]{21,22}$</code>
+    <h3>Examples</h3>
+    <p>
+        Valid <code>ssw</code> DIDs might be:
+    </p>
+    <pre class="example" title="A simple did:ssw values">
+        did:ssw:HCXdNZTEC4hQNtoVXaaRhP
+        did:ssw:testnet:SMi7CxBdvQemKU88zAnoL
+    </pre>
+</section>
+
+<section>
+    <h2>CRUD Operations</h2>
+    <h3>Create (Register)</h3>
+    <p>
+        Creating an SSW DID is done through the process of submitting a transaction to the Initial Network. The SSW
+        DID value contains a cryptographic key pair and a public key. Also, for DID creation, the owner of an
+        administrator-privileged DID must request the transaction. The initial network verifies the authorization of
+        the transaction requester by checking the DID and signature.
+    </p>
+    <p>
+        The contents to be included in the requested transaction are:
+    </p>
+    <ul>
+        <li>Requester's DID</li>
+        <li>Requester's DID signature</li>
+        <li>DID to be created</li>
+        <li>Valid DID Document information</li>
+    </ul>
+    <p>
+        Through this, a DID Document in did:ssw format is generated. The example below shows the DID Document of
+        <code>did:ssw:HCXdNZTEC4hQNtoVXaaRhP</code>.
+    </p>
+    <pre class="example" title="A DID Document derived from a did:ssw">
+        {
+            "@context": "https://www.w3.org/ns/did/v1",
+            "id": "did:ssw:HCXdNZTEC4hQNtoVXaaRhP",
+            "verificationMethod": [
+                {
+                    "id": "did:ssw:HCXdNZTEC4hQNtoVXaaRhP#key-1",
+                    "type": "Ed25519VerificationKey2018",
+                    "controller": "did:ssw:HCXdNZTEC4hQNtoVXaaRhP",
+                    "publicKeyBase58": "9q5LNP31xbCcQZoprB6ikyAxyuFadsQoJ2Yx9WCim6qi"
+                }
+            ],
+            "authentication": [
+                "did:ssw:HCXdNZTEC4hQNtoVXaaRhP#key-1"
+            ],
+            "assertionMethod": [
+                "did:ssw:HCXdNZTEC4hQNtoVXaaRhP#key-1"
+            ],
+            "service": [
+                {
+                    "id": "did:ssw:HCXdNZTEC4hQNtoVXaaRhP#did-communication",
+                    "type": "did-communication",
+                    "serviceEndpoint": "https://endpoint.myinitial.io/did:ssw:HCXdNZTEC4hQNtoVXaaRhP",
+                    "recipientKeys": [
+                        "did:ssw:HCXdNZTEC4hQNtoVXaaRhP#key-1"
+                    ]
+                }
+            ]
+        }
+    </pre>
+    <h3>Read (Resolve)</h3>
+    <p>
+        Although the initial network is a consortium blockchain network, anyone can perform an operation to read the
+        SSW DID record because it aims for a public service. The response value is a DID Document and follows the
+        same format as the above <a href="#example-2-a-did-document-derived-from-a-did-ssw">example</a>.
+    </p>
+    <p>
+        The content to be included in the requested transaction is:
+    </p>
+    <ul>
+        <li>DID to be queried</li>
+    </ul>
+    <h3>Update (Replace)</h3>
+    <p>
+        Replacing a DID can be requested by the owner of an administrator-privileged DID or the owner of the DID.
+        After that, the DID Document is newly registered and the existing information is ignored.
+    </p>
+    <p>
+        The contents to be included in the requested transaction are:
+    </p>
+    <ul>
+        <li>Requester's DID</li>
+        <li>Requester's DID signature</li>
+        <li>DID to be replaced</li>
+        <li>Valid DID Document information</li>
+    </ul>
+    <h3>Delete (Revoke)</h3>
+    <p>
+        Revoking a DID can be requested by the owner of an administrator-privileged DID or by the owner of the DID.
+        After that, the authority of the corresponding DID is removed and the DID Document is deleted.
+    </p>
+    <p>
+        The contents to be included in the requested transaction are:
+    </p>
+    <ul>
+        <li>Requester's DID</li>
+        <li>Requester's DID signature</li>
+        <li>DID to be revoked</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Security Considerations</h2>
+    <p>
+        Initial network operates based on the authority of the DID owner. Only the owner of the administrator-privilege
+        DID can create a new DID, and the owner of the newly created DID can only manage their own DID Document.
+        Based on these permission policies, an attacker's attack can be minimized. In particular, the
+        administrator-privilege DID is managed only inside the Initial network.
+    </p>
+</section>
+
+<section>
+    <h2>Privacy Considerations</h2>
+    <p>
+        Since the DID Document stored in the Initial network contains only public information of a pseudonym,
+        anonymity can be guaranteed. The only thing the DID owner should be aware of is that, since the DID Document
+        is stored in the ledger, even if it is revoked, the existing information remains in the ledger.
+        Concerns about this are ongoing.
+    </p>
+</section>
+
+<section id='conformance'></section>
+
 </body>
 </html>
